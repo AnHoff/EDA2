@@ -9,28 +9,21 @@ int main() {
         scanf("%d", &digitos[i]);
     }
 
-    long long A = 0, B = 0;
-    int i = 0;
-
-    // Construindo o valor de A
-    while (i < N && digitos[i] == 0) {
-        i++;
-    }
-    while (i < N && digitos[i] != 0) {
+    int A = 0;
+    int tamanho_atual = 0;
+    for (int i = 0; i < N; i++) {
+        tamanho_atual++;
         A = A * 10 + digitos[i];
-        i++;
+        
+        if (digitos[i+1] > 0 || i == N - 1) {
+            printf("%d", A);
+            A = 0;
+            tamanho_atual = 0;
+            if (i < N - 1) {
+                printf(" ");
+            }
+        }
     }
-
-    // Construindo o valor de B
-    while (i < N && digitos[i] == 0) {
-        i++;
-    }
-    while (i < N) {
-        B = B * 10 + digitos[i];
-        i++;
-    }
-
-    printf("%lld\n", A);
 
     return 0;
 }
