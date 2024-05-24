@@ -1,104 +1,101 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define TABLE_SIZE 262144  // Tamanho da tabela hash (2^18)
+#define HASH_SIZE 1000003
 
-typedef struct Item {
-    int id;
-    int quantity;
-    struct Item* next;
+typedef struct Item
+{
+    long long id;
+    long long quantity;
+    struct Item *next;
 } Item;
 
 typedef struct {
-    Item** table;
-} HashTable;
+    Item* head;
+} Bucket;
 
-HashTable* createHashTable() {
-    HashTable* hashTable = (HashTable*)malloc(sizeof(HashTable));
-    hashTable->table = (Item**)malloc(TABLE_SIZE * sizeof(Item*));
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        hashTable->table[i] = NULL;
-    }
-    return hashTable;
+Bucket hashtable[HASH_SIZE];
+
+int hash (long long id){
+    return abs(id) % HASH_SIZE;
 }
 
-unsigned int hash(int key) {
-    return (unsigned int)(key >= 0 ? key : -key) % TABLE_SIZE;
-}
-
-Item* findItem(HashTable* hashTable, int id) {
-    unsigned int index = hash(id);
-    Item* current = hashTable->table[index];
-    while (current != NULL && current->id != id) {
+Item * findItem (long long id){
+    int index = hash(id);
+    Item* current = hashtable[index].head;
+    while (current != NULL){
+        if (current->id == id){
+            return current;
+        }
         current = current->next;
     }
-    return current;
+    return NULL;
 }
 
-void addItem(HashTable* hashTable, int id, int quantity, int* totalItems) {
-    unsigned int index = hash(id);
-    Item* current = hashTable->table[index];
-    Item* prev = NULL;
+void addItem(long long id, long long quantity) {
+    int index = hash(id);
+    Item* current = hashtable[index].head;
+    while (current != NULL) {
+        if (current->id == id) {
+            current->quantity += quantity;
+            return;
+        }
+        current = current->next;
+    }
+    Item* newItem = (Item*) malloc(sizeof(Item));
+    newItem->id = id;
+    newItem->quantity = quantity;
+    newItem->next = hashtable[index].head;
+    hashtable[index].head = newItem;
+}
 
-    while (current != NULL && current->id != id) {
+void removeItem(long long id, long long quantity) {
+    int index = hash(id);
+    Item* current = hashtable[index].head;
+    Item* prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            current->quantity -= quantity;
+            if (current->quantity <= 0) {
+                if (prev == NULL) {
+                    hashtable[index].head = current->next;
+                } else {
+                    prev->next = current->next;
+                }
+                free(current);
+            }
+            return;
+        }
         prev = current;
         current = current->next;
     }
-
-    if (current != NULL) {
-        if (quantity > 0) {
-            current->quantity += quantity;
-            *totalItems += quantity;
-        } else {
-            int newQuantity = current->quantity + quantity;
-            if (newQuantity <= 0) {
-                *totalItems -= current->quantity;
-                current->quantity = 0;
-            } else {
-                current->quantity = newQuantity;
-                *totalItems += quantity;
-            }
-        }
-    } else if (quantity > 0) {
-        Item* newItem = (Item*)malloc(sizeof(Item));
-        newItem->id = id;
-        newItem->quantity = quantity;
-        newItem->next = hashTable->table[index];
-        hashTable->table[index] = newItem;
-        *totalItems += quantity;
-    }
 }
 
-void freeHashTable(HashTable* hashTable) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        Item* current = hashTable->table[i];
+long long countItems() {
+    long long count = 0;
+    for (int i = 0; i < HASH_SIZE; i++) {
+        Item* current = hashtable[i].head;
         while (current != NULL) {
-            Item* temp = current;
+            count += current->quantity;
             current = current->next;
-            free(temp);
         }
     }
-    free(hashTable->table);
-    free(hashTable);
+    return count;
 }
 
 int main() {
-    int N;  // Número de itens
+    int N;
     scanf("%d", &N);
-
-    HashTable* hashTable = createHashTable();
-    int totalItems = 0;
-
     for (int i = 0; i < N; i++) {
-        int id, quantity;
-        scanf("%d %d", &id, &quantity);
-
-        addItem(hashTable, id, quantity, &totalItems);
+        long long K, Q;
+        scanf("%lld %lld", &K, &Q);
+        if (Q > 0) {
+            addItem(K, Q);
+        } else {
+            removeItem(K, -Q);
+        }
     }
-
-    printf("%d\n", totalItems);
-
-    freeHashTable(hashTable);
-
+    printf("%lld\n", countItems());
     return 0;
 }
