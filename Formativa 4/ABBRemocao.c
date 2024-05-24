@@ -6,25 +6,9 @@ typedef struct no {
     struct no *esq, *dir;
 } no;
 
-no *criar_no(int x) {
-    no *novo_no = (no *)malloc(sizeof(no));
-    novo_no->chave = x;
-    novo_no->esq = NULL;
-    novo_no->dir = NULL;
-    return novo_no;
-}
-
-no *buscar_min(no *r) {
-    if (r == NULL)
-        return NULL;
-    while (r->esq != NULL)
-        r = r->esq;
-    return r;
-}
-
-no *remover(no *r, int x) {
+no* remover(no* r, int x) {
     if (r == NULL) {
-        return NULL;
+        return NULL; // A chave não está na árvore
     }
 
     if (x < r->chave) {
@@ -32,34 +16,81 @@ no *remover(no *r, int x) {
     } else if (x > r->chave) {
         r->dir = remover(r->dir, x);
     } else {
+        // Nó encontrado
         if (r->esq == NULL) {
-            no *temp = r->dir;
+            no* temp = r->dir;
             free(r);
             return temp;
         } else if (r->dir == NULL) {
-            no *temp = r->esq;
+            no* temp = r->esq;
             free(r);
             return temp;
-        }
+        } else {
+            no* paiSubstituto = r;
+            no* substituto = r->esq;
 
-        no *antecessor = buscar_min(r->dir);
-        r->chave = antecessor->chave;
-        r->dir = remover(r->dir, antecessor->chave);
+            while (substituto->dir != NULL) {
+                paiSubstituto = substituto;
+                substituto = substituto->dir;
+            }
+
+            r->chave = substituto->chave;
+
+            // Ajusta os ponteiros do pai do substituto
+            if (paiSubstituto->dir == substituto) {
+                paiSubstituto->dir = substituto->esq;
+            } else {
+                paiSubstituto->esq = substituto->esq;
+            }
+
+            free(substituto);
+        }
     }
     return r;
 }
 
-int main() {
-    no *raiz = NULL;
-    
-    raiz = inserir(raiz, 10);
-    raiz = inserir(raiz, 5);
-    raiz = inserir(raiz, 15);
-    raiz = inserir(raiz, 7);
-    raiz = inserir(raiz, 12);
-    raiz = inserir(raiz, 3);
-    
-    raiz = remover(raiz, 5);
-    
-    return 0;
+no* inserir(no* r, int x) {
+    if (r == NULL) {
+        no* novo = (no*)malloc(sizeof(no));
+        novo->chave = x;
+        novo->esq = novo->dir = NULL;
+        return novo;
+    }
+    if (x < r->chave) {
+        r->esq = inserir(r->esq, x);
+    } else {
+        r->dir = inserir(r->dir, x);
+    }
+    return r;
 }
+
+void imprimir(no* r) {
+    if (r != NULL) {
+        imprimir(r->esq);
+        printf("%d ", r->chave);
+        imprimir(r->dir);
+    }
+}
+
+// int main() {
+//     no* raiz = NULL;
+//     raiz = inserir(raiz, 50);
+//     raiz = inserir(raiz, 30);
+//     raiz = inserir(raiz, 70);
+//     raiz = inserir(raiz, 20);
+//     raiz = inserir(raiz, 40);
+//     raiz = inserir(raiz, 60);
+//     raiz = inserir(raiz, 80);
+
+//     printf("Árvore original: ");
+//     imprimir(raiz);
+//     printf("\n");
+
+//     raiz = remover(raiz, 50);
+
+//     printf("Árvore após remover 50: ");
+//     imprimir(raiz);
+//     printf("\n");
+
+//     return 0;
+// }

@@ -6,20 +6,17 @@ typedef struct no {
     struct no *esq, *dir;
 } no;
 
-int max(int a, int b) {
-    return (a > b) ? a : b;
-}
-
 int altura(no *r) {
     if (r == NULL) {
-        return -1; // Altura de uma árvore vazia = -1
+        return 0;  // Árvore vazia tem altura 0
     } else {
-        int altura_esq = altura(r->esq);
-        int altura_dir = altura(r->dir);
-        
-        return 1 + max(altura_esq, altura_dir);
+        int alturaEsq = altura(r->esq);
+        int alturaDir = altura(r->dir);
+
+        return (alturaEsq > alturaDir ? alturaEsq : alturaDir) + 1;
     }
 }
+
 
 // int main() {
 //     no *raiz = (no *)malloc(sizeof(no));

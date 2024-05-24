@@ -28,15 +28,15 @@ no *inserir(no *r, int x) {
     return r;
 }
 
-int main() {
-    no *raiz = NULL;
+// int main() {
+//     no *raiz = NULL;
     
-    raiz = inserir(raiz, 10);
-    raiz = inserir(raiz, 5);
-    raiz = inserir(raiz, 15);
-    raiz = inserir(raiz, 7);
-    raiz = inserir(raiz, 12);
-    raiz = inserir(raiz, 3);
+//     raiz = inserir(raiz, 10);
+//     raiz = inserir(raiz, 5);
+//     raiz = inserir(raiz, 15);
+//     raiz = inserir(raiz, 7);
+//     raiz = inserir(raiz, 12);
+//     raiz = inserir(raiz, 3);
     
-    return 0;
-}
+//     return 0;
+// }
